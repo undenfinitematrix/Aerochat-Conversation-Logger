@@ -1,17 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
-
-const LOGGER_API_KEY = process.env.LOGGER_API_KEY!;
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only accept POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Check env vars are set
+  const { SUPABASE_URL, SUPABASE_SERVICE_KEY, LOGGER_API_KEY } = process.env;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !LOGGER_API_KEY) {
+    console.error("Missing env vars:", {
+      SUPABASE_URL: !!SUPABASE_URL,
+      SUPABASE_SERVICE_KEY: !!SUPABASE_SERVICE_KEY,
+      LOGGER_API_KEY: !!LOGGER_API_KEY,
+    });
+    return res.status(500).json({ error: "Server misconfigured: missing environment variables" });
   }
 
   // Authenticate
@@ -27,6 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Insert into Supabase
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
   const { error } = await supabase.from("conversation_events").insert({
     event_id: event.event_id,
     conversation_id: event.conversation_id,
