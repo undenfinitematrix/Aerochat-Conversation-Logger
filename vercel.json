@@ -1,4 +1,6 @@
 {
+  "buildCommand": "",
+  "installCommand": "npm install",
   "headers": [
     {
       "source": "/api/(.*)",
