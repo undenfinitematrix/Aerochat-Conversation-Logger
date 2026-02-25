@@ -21,7 +21,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Authenticate
   const authHeader = req.headers.authorization;
   if (!authHeader || authHeader !== `Bearer ${LOGGER_API_KEY}`) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({
+      error: "Unauthorized",
+      debug: {
+        received_length: authHeader?.length ?? 0,
+        expected_length: `Bearer ${LOGGER_API_KEY}`.length,
+        key_first3: LOGGER_API_KEY.substring(0, 3),
+        key_last3: LOGGER_API_KEY.substring(LOGGER_API_KEY.length - 3),
+      },
+    });
   }
 
   // Validate required fields
