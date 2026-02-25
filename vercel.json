@@ -1,6 +1,4 @@
 {
-  "buildCommand": "",
-  "installCommand": "npm install",
   "headers": [
     {
       "source": "/api/(.*)",
@@ -10,5 +8,8 @@
         { "key": "Access-Control-Allow-Headers", "value": "Authorization, Content-Type" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/", "destination": "/api" }
   ]
 }
