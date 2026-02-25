@@ -7,8 +7,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Check env vars are set
-  const { SUPABASE_URL, SUPABASE_SERVICE_KEY, LOGGER_API_KEY } = process.env;
+  // Check env vars are set (trim to remove accidental whitespace/newlines)
+  const SUPABASE_URL = process.env.SUPABASE_URL?.trim();
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY?.trim();
+  const LOGGER_API_KEY = process.env.LOGGER_API_KEY?.trim();
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !LOGGER_API_KEY) {
     console.error("Missing env vars:", {
       SUPABASE_URL: !!SUPABASE_URL,
@@ -21,15 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Authenticate
   const authHeader = req.headers.authorization;
   if (!authHeader || authHeader !== `Bearer ${LOGGER_API_KEY}`) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      debug: {
-        received_length: authHeader?.length ?? 0,
-        expected_length: `Bearer ${LOGGER_API_KEY}`.length,
-        key_first3: LOGGER_API_KEY.substring(0, 3),
-        key_last3: LOGGER_API_KEY.substring(LOGGER_API_KEY.length - 3),
-      },
-    });
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   // Validate required fields
